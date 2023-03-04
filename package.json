@@ -27,8 +27,9 @@
     "grpc-server-reflection": "^0.1.5",
     "lodash": "^4.17.21",
     "source-map-support": "^0.5.21",
+    "@topcoder-framework/domain-acl": "^0.5.2",
     "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.6.4",
-    "topcoder-interface": "file:/Users/hamidtavakoli/topcoder/plat-interface-definition",
+    "topcoder-interface": "github:topcoder-platform/plat-interface-definition#v0.0.20",
     "uuid": "^9.0.0",
     "xss": "^1.0.14"
   },

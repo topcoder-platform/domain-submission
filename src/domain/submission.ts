@@ -1,9 +1,23 @@
 import { Value } from './../dal/models/nosql/parti_ql';
 import CoreOperations from '../common/CoreOperations';
 import { SubmissionSchema } from '../schema/Submission';
-import { CreateSubmissionInput, Submission } from '../models/domain-layer/submission/submission';
+import { CreateSubmissionInput, Submission, SubmissionList, UpdateSubmissionInput_UpdateInput } from '../models/domain-layer/submission/submission';
 import IdGenerator from '../helpers/IdGenerator';
+import { Operator, ScanCriteria } from '../models/common/common';
+import {
+  LegacyUploadDomain,
+} from "@topcoder-framework/domain-acl";
 
+if (!process.env.GRPC_ACL_SERVER_HOST || !process.env.GRPC_ACL_SERVER_PORT) {
+  throw new Error(
+    "Missing required configurations GRPC_ACL_SERVER_HOST and GRPC_ACL_SERVER_PORT"
+  );
+}
+
+const legacyUploadDomain = new LegacyUploadDomain(
+  process.env.GRPC_ACL_SERVER_HOST,
+  process.env.GRPC_ACL_SERVER_PORT
+);
 
 class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput> {
   protected toEntity(item: { [key: string]: Value }): Submission {
@@ -15,7 +29,7 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
     const submission: Submission = {
       id: IdGenerator.generateUUID(),
       challengeId: input.challengeId,
-      created: input.created || now,
+      created: now,
       createdBy: "tcwebservice", // TODO: extract from JWT
       fileType: input.fileType,
       legacyChallengeId: input.legacyChallengeId,
@@ -24,11 +38,24 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
       submissionPhaseId: input.submissionPhaseId,
       submittedDate: input.submittedDate,
       type: input.type,
-      updated: input.updated || now,
+      updated: now,
       updatedBy: "tcwebservice", // TODO: extract from JWT
       url: input.url,
     }
     return super.create(submission);
+  }
+
+  public async update(filterCriteria: ScanCriteria[], updateInput: UpdateSubmissionInput_UpdateInput): Promise<SubmissionList> {
+    // Begin Anti-Corruption Layer
+    await legacyUploadDomain.update({ filterCriteria: [
+      {
+        key: "upload_id",
+        operator: Operator.OPERATOR_EQUAL,
+        value: updateInput.submissionUploadId,
+      },
+    ], updateInput: { url: updateInput.url }})
+    // End Anti-Corruption Layer
+    return super.update(filterCriteria, updateInput);
   }
 }
 

@@ -198,8 +198,8 @@ export interface ScanCriteria {
 }
 
 export interface ScanRequest {
+  criteria: ScanCriteria[];
   nextToken?: string | undefined;
-  scanCriteria: ScanCriteria[];
 }
 
 export interface ScanResult {
@@ -209,6 +209,15 @@ export interface ScanResult {
 
 export interface CreateResult {
   kind?: { $case: "integerId"; integerId: number } | { $case: "stringId"; stringId: string };
+}
+
+export interface UpdateResult {
+  updatedCount: number;
+  message?: string | undefined;
+}
+
+export interface CheckExistsResult {
+  exists: boolean;
 }
 
 export interface LookupCriteria {
@@ -295,16 +304,16 @@ export const ScanCriteria = {
 };
 
 function createBaseScanRequest(): ScanRequest {
-  return { nextToken: undefined, scanCriteria: [] };
+  return { criteria: [], nextToken: undefined };
 }
 
 export const ScanRequest = {
   encode(message: ScanRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.nextToken !== undefined) {
-      writer.uint32(10).string(message.nextToken);
+    for (const v of message.criteria) {
+      ScanCriteria.encode(v!, writer.uint32(10).fork()).ldelim();
     }
-    for (const v of message.scanCriteria) {
-      ScanCriteria.encode(v!, writer.uint32(18).fork()).ldelim();
+    if (message.nextToken !== undefined) {
+      writer.uint32(18).string(message.nextToken);
     }
     return writer;
   },
@@ -317,10 +326,10 @@ export const ScanRequest = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.nextToken = reader.string();
+          message.criteria.push(ScanCriteria.decode(reader, reader.uint32()));
           break;
         case 2:
-          message.scanCriteria.push(ScanCriteria.decode(reader, reader.uint32()));
+          message.nextToken = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -332,21 +341,19 @@ export const ScanRequest = {
 
   fromJSON(object: any): ScanRequest {
     return {
+      criteria: Array.isArray(object?.criteria) ? object.criteria.map((e: any) => ScanCriteria.fromJSON(e)) : [],
       nextToken: isSet(object.nextToken) ? String(object.nextToken) : undefined,
-      scanCriteria: Array.isArray(object?.scanCriteria)
-        ? object.scanCriteria.map((e: any) => ScanCriteria.fromJSON(e))
-        : [],
     };
   },
 
   toJSON(message: ScanRequest): unknown {
     const obj: any = {};
-    message.nextToken !== undefined && (obj.nextToken = message.nextToken);
-    if (message.scanCriteria) {
-      obj.scanCriteria = message.scanCriteria.map((e) => e ? ScanCriteria.toJSON(e) : undefined);
+    if (message.criteria) {
+      obj.criteria = message.criteria.map((e) => e ? ScanCriteria.toJSON(e) : undefined);
     } else {
-      obj.scanCriteria = [];
+      obj.criteria = [];
     }
+    message.nextToken !== undefined && (obj.nextToken = message.nextToken);
     return obj;
   },
 
@@ -356,8 +363,8 @@ export const ScanRequest = {
 
   fromPartial<I extends Exact<DeepPartial<ScanRequest>, I>>(object: I): ScanRequest {
     const message = createBaseScanRequest();
+    message.criteria = object.criteria?.map((e) => ScanCriteria.fromPartial(e)) || [];
     message.nextToken = object.nextToken ?? undefined;
-    message.scanCriteria = object.scanCriteria?.map((e) => ScanCriteria.fromPartial(e)) || [];
     return message;
   },
 };
@@ -493,6 +500,119 @@ export const CreateResult = {
     if (object.kind?.$case === "stringId" && object.kind?.stringId !== undefined && object.kind?.stringId !== null) {
       message.kind = { $case: "stringId", stringId: object.kind.stringId };
     }
+    return message;
+  },
+};
+
+function createBaseUpdateResult(): UpdateResult {
+  return { updatedCount: 0, message: undefined };
+}
+
+export const UpdateResult = {
+  encode(message: UpdateResult, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.updatedCount !== 0) {
+      writer.uint32(8).int64(message.updatedCount);
+    }
+    if (message.message !== undefined) {
+      writer.uint32(18).string(message.message);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): UpdateResult {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateResult();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.updatedCount = longToNumber(reader.int64() as Long);
+          break;
+        case 2:
+          message.message = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateResult {
+    return {
+      updatedCount: isSet(object.updatedCount) ? Number(object.updatedCount) : 0,
+      message: isSet(object.message) ? String(object.message) : undefined,
+    };
+  },
+
+  toJSON(message: UpdateResult): unknown {
+    const obj: any = {};
+    message.updatedCount !== undefined && (obj.updatedCount = Math.round(message.updatedCount));
+    message.message !== undefined && (obj.message = message.message);
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateResult>, I>>(base?: I): UpdateResult {
+    return UpdateResult.fromPartial(base ?? {});
+  },
+
+  fromPartial<I extends Exact<DeepPartial<UpdateResult>, I>>(object: I): UpdateResult {
+    const message = createBaseUpdateResult();
+    message.updatedCount = object.updatedCount ?? 0;
+    message.message = object.message ?? undefined;
+    return message;
+  },
+};
+
+function createBaseCheckExistsResult(): CheckExistsResult {
+  return { exists: false };
+}
+
+export const CheckExistsResult = {
+  encode(message: CheckExistsResult, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.exists === true) {
+      writer.uint32(8).bool(message.exists);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): CheckExistsResult {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCheckExistsResult();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.exists = reader.bool();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): CheckExistsResult {
+    return { exists: isSet(object.exists) ? Boolean(object.exists) : false };
+  },
+
+  toJSON(message: CheckExistsResult): unknown {
+    const obj: any = {};
+    message.exists !== undefined && (obj.exists = message.exists);
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CheckExistsResult>, I>>(base?: I): CheckExistsResult {
+    return CheckExistsResult.fromPartial(base ?? {});
+  },
+
+  fromPartial<I extends Exact<DeepPartial<CheckExistsResult>, I>>(object: I): CheckExistsResult {
+    const message = createBaseCheckExistsResult();
+    message.exists = object.exists ?? false;
     return message;
   },
 };

@@ -38,8 +38,8 @@ export const SubmissionService = {
     responseStream: false,
     requestSerialize: (value: UpdateSubmissionInput) => Buffer.from(UpdateSubmissionInput.encode(value).finish()),
     requestDeserialize: (value: Buffer) => UpdateSubmissionInput.decode(value),
-    responseSerialize: (value: Submission) => Buffer.from(Submission.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => Submission.decode(value),
+    responseSerialize: (value: SubmissionList) => Buffer.from(SubmissionList.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => SubmissionList.decode(value),
   },
   delete: {
     path: "/topcoder.domain.service.submission.Submission/Delete",
@@ -56,6 +56,6 @@ export interface SubmissionServer extends UntypedServiceImplementation {
   scan: handleUnaryCall<ScanRequest, ScanResult>;
   lookup: handleUnaryCall<LookupCriteria, Submission>;
   create: handleUnaryCall<CreateSubmissionInput, Submission>;
-  update: handleUnaryCall<UpdateSubmissionInput, Submission>;
+  update: handleUnaryCall<UpdateSubmissionInput, SubmissionList>;
   delete: handleUnaryCall<LookupCriteria, SubmissionList>;
 }
