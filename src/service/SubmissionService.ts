@@ -5,6 +5,8 @@ import {
   sendUnaryData,
 } from "@grpc/grpc-js";
 
+import xss from "xss";
+
 import {
   LookupCriteria,
   ScanRequest,

@@ -1,8 +1,10 @@
 import { Value } from './../dal/models/nosql/parti_ql';
 import CoreOperations from '../common/CoreOperations';
 import { SubmissionSchema } from '../schema/Submission';
+
 import { CreateSubmissionInput, Submission } from '../models/domain-layer/submission/submission';
 import IdGenerator from '../helpers/IdGenerator';
+import { isUuid, getPhaseName, getChallengePhaseId } from '../utils/utils';
 
 
 class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput> {
@@ -11,6 +13,18 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
   }
 
   public async create(input: CreateSubmissionInput): Promise<Submission> {
+    //Create submission
+    //First Let's do legacy
+    if (input.submissionPhaseId && isUuid(input.submissionPhaseId)) {
+      const phaseName = await getPhaseName(input.challengeId, input.submissionPhaseId)
+      if (phaseName) {
+        input.submissionPhaseId = (await getChallengePhaseId(phaseName))?.toString()
+      }
+    }
+
+    // End Legacy
+    // Get information for legacy submission
+
     const now = new Date().getTime();
     const submission: Submission = {
       id: IdGenerator.generateUUID(),
@@ -28,7 +42,9 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
       updatedBy: "tcwebservice", // TODO: extract from JWT
       url: input.url,
     }
-    return super.create(submission);
+    await super.create(submission);
+
+
   }
 }
 
