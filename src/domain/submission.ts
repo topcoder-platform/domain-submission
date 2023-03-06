@@ -3,10 +3,12 @@ import CoreOperations from '../common/CoreOperations';
 import { SubmissionSchema } from '../schema/Submission';
 import { CreateSubmissionInput, Submission, SubmissionList, UpdateSubmissionInput_UpdateInput } from '../models/domain-layer/submission/submission';
 import IdGenerator from '../helpers/IdGenerator';
-import { Operator, ScanCriteria } from '../models/common/common';
+import { LookupCriteria, Operator, ScanCriteria } from '../models/common/common';
 import {
   LegacyUploadDomain,
+  LegacySubmissionDomain,
 } from "@topcoder-framework/domain-acl";
+import { SubmissionStatus, UploadStatus } from '../common/Constants';
 
 if (!process.env.GRPC_ACL_SERVER_HOST || !process.env.GRPC_ACL_SERVER_PORT) {
   throw new Error(
@@ -15,6 +17,11 @@ if (!process.env.GRPC_ACL_SERVER_HOST || !process.env.GRPC_ACL_SERVER_PORT) {
 }
 
 const legacyUploadDomain = new LegacyUploadDomain(
+  process.env.GRPC_ACL_SERVER_HOST,
+  process.env.GRPC_ACL_SERVER_PORT
+);
+
+const legacySubmissionDomain = new LegacySubmissionDomain(
   process.env.GRPC_ACL_SERVER_HOST,
   process.env.GRPC_ACL_SERVER_PORT
 );
@@ -53,9 +60,31 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
         operator: Operator.OPERATOR_EQUAL,
         value: updateInput.submissionUploadId,
       },
-    ], updateInput: { url: updateInput.url }})
+    ], updateInput: { url: updateInput.url }}) // Only update of the URL is supported
     // End Anti-Corruption Layer
     return super.update(filterCriteria, updateInput);
+  }
+
+  public async delete(filterCriteria: LookupCriteria): Promise<SubmissionList> {
+    // Begin Anti-Corruption Layer
+    const submission = await legacySubmissionDomain.lookup(filterCriteria)
+    // Mark upload as deleted
+    await legacyUploadDomain.update({ filterCriteria: [
+      {
+        key: "upload_id",
+        operator: Operator.OPERATOR_EQUAL,
+        value: submission.uploadId,
+      },
+    ], updateInput: { uploadStatusId: UploadStatus.Deleted }})
+    await legacySubmissionDomain.update({ filterCriteria: [
+      {
+        key: "submission_id",
+        operator: Operator.OPERATOR_EQUAL,
+        value: submission.submissionId,
+        },
+        ], updateInput: { submissionStatusId: SubmissionStatus.Deleted }})
+    // End Anti-Corruption Layer
+    return super.delete(filterCriteria);
   }
 }
 

@@ -3,7 +3,6 @@ import CoreOperations from '../common/CoreOperations';
 import { Review, CreateReviewInput } from '../models/domain-layer/submission/review';
 import IdGenerator from '../helpers/IdGenerator';
 import { ReviewSchema } from '../schema/Review';
-import { CreateResult } from '../models/common/common';
 
 class ReviewDomain extends CoreOperations<Review, CreateReviewInput> {
   protected toEntity(item: { [key: string]: Value }): Review {
