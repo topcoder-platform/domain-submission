@@ -54,13 +54,10 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
 
   public async update(filterCriteria: ScanCriteria[], updateInput: UpdateSubmissionInput_UpdateInput): Promise<SubmissionList> {
     // Begin Anti-Corruption Layer
-    await legacyUploadDomain.update({ filterCriteria: [
-      {
-        key: "upload_id",
-        operator: Operator.OPERATOR_EQUAL,
-        value: updateInput.submissionUploadId,
-      },
-    ], updateInput: { url: updateInput.url }}) // Only update of the URL is supported
+    await legacyUploadDomain.update({
+      uploadId: updateInput.submissionUploadId,
+      url: updateInput.url, // Only update of the URL is supported
+    })
     // End Anti-Corruption Layer
     return super.update(filterCriteria, updateInput);
   }
@@ -69,20 +66,14 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
     // Begin Anti-Corruption Layer
     const submission = await legacySubmissionDomain.lookup(filterCriteria)
     // Mark upload as deleted
-    await legacyUploadDomain.update({ filterCriteria: [
-      {
-        key: "upload_id",
-        operator: Operator.OPERATOR_EQUAL,
-        value: submission.uploadId,
-      },
-    ], updateInput: { uploadStatusId: UploadStatus.Deleted }})
-    await legacySubmissionDomain.update({ filterCriteria: [
-      {
-        key: "submission_id",
-        operator: Operator.OPERATOR_EQUAL,
-        value: submission.submissionId,
-        },
-        ], updateInput: { submissionStatusId: SubmissionStatus.Deleted }})
+    await legacyUploadDomain.update({
+      uploadId: submission.submissionUploadId,
+      uploadStatusId: UploadStatus.Deleted,
+    })
+    await legacySubmissionDomain.update({
+      submissionId: submission.submissionId,
+      submissionStatusId: SubmissionStatus.Deleted
+    })
     // End Anti-Corruption Layer
     return super.delete(filterCriteria);
   }

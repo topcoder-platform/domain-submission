@@ -34,21 +34,13 @@ class ReviewSummationDomain extends CoreOperations<ReviewSummation, CreateReview
       updatedBy: "tcwebservice", // TODO: extract from JWT
     }
     // Begin Anti-Corruption Layer
-      await legacySubmissionDomain.update({
-        filterCriteria: [
-          {
-            key: "submission_id",
-            operator: Operator.OPERATOR_EQUAL,
-            value: input.submissionId,
-          },
-        ],
-        updateInput: {
-          ...(input.isFinal ? { finalScore: input.aggregateScore } : { initialScore: input.aggregateScore })
-        }
-      })
-      // TODO: Update marathon match tables
-      // QUERY_UPDATE_LONG_SUBMISSION_SCORE { componentStateId, submissionNumber, reviewScore }
-      // QUERY_UPDATE_LONG_COMPONENT_STATE_POINTS { componentStateId, reviewScore }
+    await legacySubmissionDomain.update({
+      submissionId: input.submissionId,
+      ...(input.isFinal ? { finalScore: input.aggregateScore } : { initialScore: input.aggregateScore }),
+    })
+    // TODO: Update marathon match tables
+    // -> QUERY_UPDATE_LONG_SUBMISSION_SCORE { componentStateId, submissionNumber, reviewScore }
+    // -> QUERY_UPDATE_LONG_COMPONENT_STATE_POINTS { componentStateId, reviewScore }
     // End Anti-Corruption Layer
     return super.create(review);
   }
