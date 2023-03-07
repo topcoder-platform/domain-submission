@@ -15,12 +15,18 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
   public async create(input: CreateSubmissionInput): Promise<Submission> {
     //Create submission
     //First Let's do legacy
+    console.log("************ Legacy Submission ************", input)
+    const legacySubmissionInput = input;
     if (input.submissionPhaseId && isUuid(input.submissionPhaseId)) {
       const phaseName = await getPhaseName(input.challengeId, input.submissionPhaseId)
+      console.log("************ Legacy Submission Phase Name ************", phaseName)
       if (phaseName) {
-        input.submissionPhaseId = (await getChallengePhaseId(phaseName))?.toString()
+        legacySubmissionInput.submissionPhaseId = (await getChallengePhaseId(phaseName))?.toString()
       }
     }
+
+    console.log("************ Legacy Submission Data************")
+    //Move the rest to ACL
 
     // End Legacy
     // Get information for legacy submission
