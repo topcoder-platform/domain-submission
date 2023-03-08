@@ -9,21 +9,16 @@ import {
   LegacySubmissionDomain,
 } from "@topcoder-framework/domain-acl";
 import { SubmissionStatus, UploadStatus } from '../common/Constants';
-
-if (!process.env.GRPC_ACL_SERVER_HOST || !process.env.GRPC_ACL_SERVER_PORT) {
-  throw new Error(
-    "Missing required configurations GRPC_ACL_SERVER_HOST and GRPC_ACL_SERVER_PORT"
-  );
-}
+import { GRPC_ACL_SERVER_HOST, GRPC_ACL_SERVER_PORT } from '../config';
 
 const legacyUploadDomain = new LegacyUploadDomain(
-  process.env.GRPC_ACL_SERVER_HOST,
-  process.env.GRPC_ACL_SERVER_PORT
+  GRPC_ACL_SERVER_HOST,
+  GRPC_ACL_SERVER_PORT
 );
 
 const legacySubmissionDomain = new LegacySubmissionDomain(
-  process.env.GRPC_ACL_SERVER_HOST,
-  process.env.GRPC_ACL_SERVER_PORT
+  GRPC_ACL_SERVER_HOST,
+  GRPC_ACL_SERVER_PORT
 );
 
 class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput> {

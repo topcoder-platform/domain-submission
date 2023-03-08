@@ -20,6 +20,8 @@ export const GRPC_SERVER_PORT = process.env.GRPC_SERVER_PORT || 9092;
 export const GRPC_SERVER_HOST = process.env.GRPC_SERVER_HOST || "";
 export const GRPC_NOSQL_SERVER_HOST = process.env.GRPC_NOSQL_SERVER_HOST;
 export const GRPC_NOSQL_SERVER_PORT = process.env.GRPC_NOSQL_SERVER_PORT;
+export const GRPC_ACL_SERVER_HOST = process.env.GRPC_ACL_SERVER_HOST || "localhost";
+export const GRPC_ACL_SERVER_PORT = process.env.GRPC_ACL_SERVER_PORT || "9091";
 
 export const ENV = process.env.ENV || "local";
 
@@ -33,3 +35,5 @@ assert(AUTH0_CLIENT_ID, "AUTH0_CLIENT_ID is not defined");
 assert(AUTH0_CLIENT_SECRET, "AUTH0_CLIENT_SECRET is not defined");
 assert(GRPC_NOSQL_SERVER_HOST, "GRPC_NOSQL_SERVER_HOST is not defined");
 assert(GRPC_NOSQL_SERVER_PORT, "GRPC_NOSQL_SERVER_PORT is not defined");
+assert(GRPC_ACL_SERVER_HOST, "GRPC_ACL_SERVER_HOST is not defined");
+assert(GRPC_ACL_SERVER_PORT, "GRPC_ACL_SERVER_PORT is not defined");

@@ -1,4 +1,5 @@
 import { Operator, Value } from '../dal/models/nosql/parti_ql';
+import { GRPC_ACL_SERVER_HOST, GRPC_ACL_SERVER_PORT } from '../config';
 import CoreOperations from '../common/CoreOperations';
 import { ReviewSummation, CreateReviewSummationInput } from '../models/domain-layer/submission/review_summation';
 import IdGenerator from '../helpers/IdGenerator';
@@ -7,15 +8,9 @@ import {
   LegacySubmissionDomain,
 } from "@topcoder-framework/domain-acl";
 
-if (!process.env.GRPC_ACL_SERVER_HOST || !process.env.GRPC_ACL_SERVER_PORT) {
-  throw new Error(
-    "Missing required configurations GRPC_ACL_SERVER_HOST and GRPC_ACL_SERVER_PORT"
-  );
-}
-
 const legacySubmissionDomain = new LegacySubmissionDomain(
-  process.env.GRPC_ACL_SERVER_HOST,
-  process.env.GRPC_ACL_SERVER_PORT
+  GRPC_ACL_SERVER_HOST,
+  GRPC_ACL_SERVER_PORT
 );
 
 class ReviewSummationDomain extends CoreOperations<ReviewSummation, CreateReviewSummationInput> {
