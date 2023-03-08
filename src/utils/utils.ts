@@ -2,13 +2,14 @@ import { Challenge, ChallengeDomain, Challenge_Phase } from "@topcoder-framework
 import { LegacyChallengePhaseDomain } from "@topcoder-framework/domain-acl"
 import { DomainHelper } from "@topcoder-framework/lib-common"
 import {
-  GRPC_CHALLENGE_PHASE_SERVER_HOST, GRPC_CHALLENGE_PHASE_SERVER_PORT,
+  GRPC_ACL_SERVER_HOST,
+  GRPC_ACL_SERVER_PORT,
   GRPC_CHALLENGE_SERVER_HOST, GRPC_CHALLENGE_SERVER_PORT
 } from "../config"
 import { PhaseTypeList } from "@topcoder-framework/domain-acl/dist-es/models/domain-layer/legacy/challenge_phase";
 const challengeDomain = new ChallengeDomain(GRPC_CHALLENGE_SERVER_HOST, GRPC_CHALLENGE_SERVER_PORT);
-const legacyChallengePhaseDomain = new LegacyChallengePhaseDomain(GRPC_CHALLENGE_PHASE_SERVER_HOST,
-  GRPC_CHALLENGE_PHASE_SERVER_PORT);
+const legacyChallengePhaseDomain = new LegacyChallengePhaseDomain(GRPC_ACL_SERVER_HOST,
+  GRPC_ACL_SERVER_PORT);
 
 /**
  * Test if the id is UUID
@@ -26,14 +27,20 @@ async function getPhaseName(challengeUuid: string, submissionPhaseId: string) {
 }
 
 async function getChallengePhaseId(phaseName: string) {
-  const challengePhases: PhaseTypeList = await legacyChallengePhaseDomain.getPhaseTypes({})
-  const phase = challengePhases.items.find(phase => phase.name === phaseName)
-  return phase?.phaseTypeId
+  console.log("************ Legacy Submission Phase Name [2]************", phaseName)
+  try {
+
+    const challengePhases: PhaseTypeList = await legacyChallengePhaseDomain.getPhaseTypes({})
+    console.log("************ Legacy Submission Phase Name challengePhases ************", challengePhases)
+    const phase = challengePhases.items.find(phase => phase.name === phaseName)
+    console.log("************ Legacy Submission Phase Name phases ************", phase)
+    return phase?.phaseTypeId
+  } catch (e) {
+    console.log("************ Legacy Submission Phase Name Error ************", e)
+  }
 }
 
-async function getChallengeProperties(phaseName: string) {
 
-}
 export {
   isUuid,
   getPhaseName,
