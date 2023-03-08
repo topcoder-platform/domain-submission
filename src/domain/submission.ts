@@ -4,6 +4,7 @@ import { SubmissionSchema } from '../schema/Submission';
 import { CreateSubmissionInput, Submission, SubmissionList, UpdateSubmissionInput_UpdateInput } from '../models/domain-layer/submission/submission';
 import IdGenerator from '../helpers/IdGenerator';
 import { LookupCriteria, Operator, ScanCriteria } from '../models/common/common';
+import { isUuid, getPhaseName, getChallengePhaseId } from '../utils/utils';
 import {
   LegacyUploadDomain,
   LegacySubmissionDomain,
@@ -21,18 +22,42 @@ const legacySubmissionDomain = new LegacySubmissionDomain(
   GRPC_ACL_SERVER_PORT
 );
 
+
 class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput> {
   protected toEntity(item: { [key: string]: Value }): Submission {
     return Submission.fromJSON(item);
   }
 
   public async create(input: CreateSubmissionInput): Promise<Submission> {
+    //Create submission
+    //First Let's do legacy
+    console.log("************ Legacy Submission ************", input)
+    const legacySubmissionInput = input;
+    if (input.submissionPhaseId && isUuid(input.submissionPhaseId)) {
+      const phaseName = await getPhaseName(input.challengeId, input.submissionPhaseId)
+      console.log("************ Legacy Submission Phase Name [1]************", phaseName)
+      if (phaseName) {
+        legacySubmissionInput.submissionPhaseId = (await getChallengePhaseId(phaseName))?.toString()
+        console.log(legacySubmissionInput.submissionPhaseId)
+      }
+    }
+
+    console.log("************ Legacy Submission Data************")
+    //Move the rest to ACL
+
+    // End Legacy
+    // Get information for legacy submission
+
     const now = new Date().getTime();
+    const tracingInfo = {
+      createdBy: "tcwebservice", // TODO: extract from JWT
+      updatedBy: "tcwebservice", // TODO: extract from JWT
+      created: now,
+      updated: now
+    }
     const submission: Submission = {
       id: IdGenerator.generateUUID(),
       challengeId: input.challengeId,
-      created: now,
-      createdBy: "tcwebservice", // TODO: extract from JWT
       fileType: input.fileType,
       legacyChallengeId: input.legacyChallengeId,
       legacySubmissionId: input.legacySubmissionId,
@@ -40,11 +65,13 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
       submissionPhaseId: input.submissionPhaseId,
       submittedDate: input.submittedDate,
       type: input.type,
-      updated: now,
-      updatedBy: "tcwebservice", // TODO: extract from JWT
       url: input.url,
+      ...tracingInfo
     }
-    return super.create(submission);
+    const result = await super.create(submission);
+    console.log("************ Submission Result ************", result)
+    return result;
+
   }
 
   public async update(filterCriteria: ScanCriteria[], updateInput: UpdateSubmissionInput_UpdateInput): Promise<SubmissionList> {
