@@ -20,6 +20,7 @@ export const GRPC_SERVER_PORT = process.env.GRPC_SERVER_PORT || 9092;
 export const GRPC_SERVER_HOST = process.env.GRPC_SERVER_HOST || "localhost";
 export const GRPC_NOSQL_SERVER_HOST = process.env.GRPC_NOSQL_SERVER_HOST;
 export const GRPC_NOSQL_SERVER_PORT = process.env.GRPC_NOSQL_SERVER_PORT;
+
 export const GRPC_CHALLENGE_SERVER_PORT = <string>process.env.GRPC_CHALLENGE_SERVER_PORT;
 export const GRPC_CHALLENGE_SERVER_HOST = <string>process.env.GRPC_CHALLENGE_SERVER_HOST;
 export const GRPC_ACL_SERVER_HOST = <string>process.env.GRPC_ACL_SERVER_HOST;

@@ -69,7 +69,19 @@ class SubmissionServerImp implements SubmissionServer {
   update: handleUnaryCall<UpdateSubmissionInput, SubmissionList> = async (
     call: ServerUnaryCall<UpdateSubmissionInput, SubmissionList>,
     callback: sendUnaryData<SubmissionList>
-  ): Promise<void> => { };
+  ): Promise<void> => {
+    try {
+      const { request: { filterCriteria, updateInput } } = call;
+
+      if (!updateInput) return callback(null, { items: [] })
+
+      const submissionList = await Domain.update(filterCriteria, updateInput);
+
+      callback(null, submissionList);
+    } catch (error: any) {
+      callback(error, null);
+    }
+  };
 
   delete: handleUnaryCall<LookupCriteria, SubmissionList> = async (
     call: ServerUnaryCall<LookupCriteria, SubmissionList>,
