@@ -9,7 +9,7 @@
     "moduleResolution": "Node16",
     "esModuleInterop": true,
     "outDir": "dist",
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
   },
   "include": [
     "typings/global.d.ts",
@@ -17,15 +17,7 @@
   ],
   "exclude": [
     "node_modules",
-    "src/models",
+    "src/models/*",
     "src/dal/models/nosql"
-  ],
-  "references": [
-    {
-      "path": "src/models"
-    },
-    {
-      "path": "src/dal/models/nosql"
-    }
   ]
 }

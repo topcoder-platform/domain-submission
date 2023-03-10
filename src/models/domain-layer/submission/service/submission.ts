@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { handleUnaryCall, UntypedServiceImplementation } from "@grpc/grpc-js";
-import { CreateResult, LookupCriteria, ScanRequest, ScanResult, UpdateResult } from "../../../common/common";
+import { LookupCriteria, ScanRequest, ScanResult } from "../../../common/common";
 import { CreateSubmissionInput, Submission, SubmissionList, UpdateSubmissionInput } from "../submission";
 
 export type SubmissionService = typeof SubmissionService;
@@ -29,8 +29,8 @@ export const SubmissionService = {
     responseStream: false,
     requestSerialize: (value: CreateSubmissionInput) => Buffer.from(CreateSubmissionInput.encode(value).finish()),
     requestDeserialize: (value: Buffer) => CreateSubmissionInput.decode(value),
-    responseSerialize: (value: CreateResult) => Buffer.from(CreateResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => CreateResult.decode(value),
+    responseSerialize: (value: Submission) => Buffer.from(Submission.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => Submission.decode(value),
   },
   update: {
     path: "/topcoder.domain.service.submission.Submission/Update",
@@ -38,8 +38,8 @@ export const SubmissionService = {
     responseStream: false,
     requestSerialize: (value: UpdateSubmissionInput) => Buffer.from(UpdateSubmissionInput.encode(value).finish()),
     requestDeserialize: (value: Buffer) => UpdateSubmissionInput.decode(value),
-    responseSerialize: (value: UpdateResult) => Buffer.from(UpdateResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => UpdateResult.decode(value),
+    responseSerialize: (value: SubmissionList) => Buffer.from(SubmissionList.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => SubmissionList.decode(value),
   },
   delete: {
     path: "/topcoder.domain.service.submission.Submission/Delete",
@@ -55,7 +55,7 @@ export const SubmissionService = {
 export interface SubmissionServer extends UntypedServiceImplementation {
   scan: handleUnaryCall<ScanRequest, ScanResult>;
   lookup: handleUnaryCall<LookupCriteria, Submission>;
-  create: handleUnaryCall<CreateSubmissionInput, CreateResult>;
-  update: handleUnaryCall<UpdateSubmissionInput, UpdateResult>;
+  create: handleUnaryCall<CreateSubmissionInput, Submission>;
+  update: handleUnaryCall<UpdateSubmissionInput, SubmissionList>;
   delete: handleUnaryCall<LookupCriteria, SubmissionList>;
 }

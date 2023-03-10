@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { handleUnaryCall, UntypedServiceImplementation } from "@grpc/grpc-js";
-import { CreateResult, LookupCriteria, ScanRequest, ScanResult, UpdateResult } from "../../../common/common";
+import { LookupCriteria, ScanRequest, ScanResult } from "../../../common/common";
 import {
   CreateReviewSummationInput,
   ReviewSummation,
@@ -35,8 +35,8 @@ export const ReviewSummationService = {
     requestSerialize: (value: CreateReviewSummationInput) =>
       Buffer.from(CreateReviewSummationInput.encode(value).finish()),
     requestDeserialize: (value: Buffer) => CreateReviewSummationInput.decode(value),
-    responseSerialize: (value: CreateResult) => Buffer.from(CreateResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => CreateResult.decode(value),
+    responseSerialize: (value: ReviewSummation) => Buffer.from(ReviewSummation.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => ReviewSummation.decode(value),
   },
   update: {
     path: "/topcoder.domain.service.review_summation.ReviewSummation/Update",
@@ -45,8 +45,8 @@ export const ReviewSummationService = {
     requestSerialize: (value: UpdateReviewSummationInput) =>
       Buffer.from(UpdateReviewSummationInput.encode(value).finish()),
     requestDeserialize: (value: Buffer) => UpdateReviewSummationInput.decode(value),
-    responseSerialize: (value: UpdateResult) => Buffer.from(UpdateResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => UpdateResult.decode(value),
+    responseSerialize: (value: ReviewSummationList) => Buffer.from(ReviewSummationList.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => ReviewSummationList.decode(value),
   },
   delete: {
     path: "/topcoder.domain.service.review_summation.ReviewSummation/Delete",
@@ -62,7 +62,7 @@ export const ReviewSummationService = {
 export interface ReviewSummationServer extends UntypedServiceImplementation {
   scan: handleUnaryCall<ScanRequest, ScanResult>;
   lookup: handleUnaryCall<LookupCriteria, ReviewSummation>;
-  create: handleUnaryCall<CreateReviewSummationInput, CreateResult>;
-  update: handleUnaryCall<UpdateReviewSummationInput, UpdateResult>;
+  create: handleUnaryCall<CreateReviewSummationInput, ReviewSummation>;
+  update: handleUnaryCall<UpdateReviewSummationInput, ReviewSummationList>;
   delete: handleUnaryCall<LookupCriteria, ReviewSummationList>;
 }

@@ -45,7 +45,7 @@ export interface UpdateReviewSummationInput_UpdateInput {
 }
 
 export interface ReviewSummationList {
-  id: string[];
+  items: ReviewSummation[];
 }
 
 function createBaseReviewSummation(): ReviewSummation {
@@ -522,13 +522,13 @@ export const UpdateReviewSummationInput_UpdateInput = {
 };
 
 function createBaseReviewSummationList(): ReviewSummationList {
-  return { id: [] };
+  return { items: [] };
 }
 
 export const ReviewSummationList = {
   encode(message: ReviewSummationList, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    for (const v of message.id) {
-      writer.uint32(10).string(v!);
+    for (const v of message.items) {
+      ReviewSummation.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
@@ -541,7 +541,7 @@ export const ReviewSummationList = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.id.push(reader.string());
+          message.items.push(ReviewSummation.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -552,15 +552,15 @@ export const ReviewSummationList = {
   },
 
   fromJSON(object: any): ReviewSummationList {
-    return { id: Array.isArray(object?.id) ? object.id.map((e: any) => String(e)) : [] };
+    return { items: Array.isArray(object?.items) ? object.items.map((e: any) => ReviewSummation.fromJSON(e)) : [] };
   },
 
   toJSON(message: ReviewSummationList): unknown {
     const obj: any = {};
-    if (message.id) {
-      obj.id = message.id.map((e) => e);
+    if (message.items) {
+      obj.items = message.items.map((e) => e ? ReviewSummation.toJSON(e) : undefined);
     } else {
-      obj.id = [];
+      obj.items = [];
     }
     return obj;
   },
@@ -571,7 +571,7 @@ export const ReviewSummationList = {
 
   fromPartial<I extends Exact<DeepPartial<ReviewSummationList>, I>>(object: I): ReviewSummationList {
     const message = createBaseReviewSummationList();
-    message.id = object.id?.map((e) => e) || [];
+    message.items = object.items?.map((e) => ReviewSummation.fromPartial(e)) || [];
     return message;
   },
 };

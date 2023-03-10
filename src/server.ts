@@ -6,6 +6,8 @@ import { addReflection } from "grpc-server-reflection";
 import { ENV, GRPC_SERVER_HOST, GRPC_SERVER_PORT } from './config'
 
 import { SubmissionServer, SubmissionService } from "./service/SubmissionService";
+import { ReviewServer, ReviewService } from "./service/ReviewService";
+import { ReviewSummationServer, ReviewSummationService } from "./service/ReviewSummationService";
 
 
 const server = new Server({
@@ -20,6 +22,8 @@ if (ENV === "local") {
 
 
 server.addService(SubmissionService, new SubmissionServer());
+server.addService(ReviewService, new ReviewServer());
+server.addService(ReviewSummationService, new ReviewSummationServer());
 
 server.bindAsync(
   `${GRPC_SERVER_HOST}:${GRPC_SERVER_PORT}`,
