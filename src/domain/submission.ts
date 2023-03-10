@@ -7,6 +7,7 @@ import { CreateSubmissionInput, Submission } from '../models/domain-layer/submis
 import IdGenerator from '../helpers/IdGenerator';
 import { isUuid, getPhaseName, getChallengePhaseId } from '../utils/utils';
 import { GRPC_ACL_SERVER_HOST, GRPC_ACL_SERVER_PORT } from '../config';
+import { CreateResult } from '../models/common/common';
 
 
 const legacySubmissionDomain = new LegacySubmissionDomain(GRPC_ACL_SERVER_HOST, GRPC_ACL_SERVER_PORT);
@@ -18,23 +19,6 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
 
   public async create(input: CreateSubmissionInput): Promise<Submission> {
     //Create submission
-    //First Let's do legacy
-    console.log("************ Legacy Submission ************", input)
-    const legacySubmissionInput = input;
-    if (input.submissionPhaseId && isUuid(input.submissionPhaseId)) {
-      const phaseName = await getPhaseName(input.challengeId, input.submissionPhaseId)
-      console.log("************ Legacy Submission Phase Name [1]************", phaseName)
-      if (phaseName) {
-        legacySubmissionInput.submissionPhaseId = (await getChallengePhaseId(phaseName))?.toString()
-        console.log(legacySubmissionInput.submissionPhaseId)
-      }
-    }
-
-    console.log("************ Legacy Submission Data************")
-    //Move the rest to ACL
-
-    // End Legacy
-    // Get information for legacy submission
 
     const now = new Date().getTime();
     const tracingInfo = {
@@ -43,12 +27,33 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
       created: now,
       updated: now
     }
+    //First Let's do legacy
+    const legacySubmissionInput = {
+      ...input,
+      ...tracingInfo
+    }
+    if (input.submissionPhaseId && isUuid(input.submissionPhaseId)) {
+      const phaseName = await getPhaseName(input.challengeId, input.submissionPhaseId)
+      if (phaseName) {
+        legacySubmissionInput.submissionPhaseId = (await getChallengePhaseId(phaseName))?.toString()
+      }
+    }
+    // In case phaseId is undefined
+    if (legacySubmissionInput.submissionPhaseId === undefined) {
+      legacySubmissionInput.submissionPhaseId = input.submissionPhaseId
+    }
+    //Move the rest to ACL
+    const legacySubmissionResult: CreateResult = await legacySubmissionDomain.create(legacySubmissionInput)
+    // End Legacy
+    // Get information for legacy submission
+
+
     const submission: Submission = {
       id: IdGenerator.generateUUID(),
       challengeId: input.challengeId,
       fileType: input.fileType,
       legacyChallengeId: input.legacyChallengeId,
-      legacySubmissionId: input.legacySubmissionId,
+      legacySubmissionId: (legacySubmissionResult.kind as any).integerId, //TODO: ask for better type
       memberId: input.memberId,
       submissionPhaseId: input.submissionPhaseId,
       submittedDate: input.submittedDate,

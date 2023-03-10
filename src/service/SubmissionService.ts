@@ -5,7 +5,6 @@ import {
   sendUnaryData,
 } from "@grpc/grpc-js";
 
-import xss from "xss";
 
 import {
   LookupCriteria,
@@ -56,20 +55,20 @@ class SubmissionServerImp implements SubmissionServer {
     callback: sendUnaryData<ScanResult>
   ): Promise<void> => {
     const {
-      request: { scanCriteria, nextToken: inputNextToken },
+      request: { criteria, nextToken: inputNextToken },
     } = call;
 
     const { items, nextToken } = await Domain.scan(
-      scanCriteria,
+      criteria,
       inputNextToken
     );
 
     callback(null, { items, nextToken });
   };
 
-  update: handleUnaryCall<UpdateSubmissionInput, Submission> = async (
-    call: ServerUnaryCall<UpdateSubmissionInput, Submission>,
-    callback: sendUnaryData<Submission>
+  update: handleUnaryCall<UpdateSubmissionInput, SubmissionList> = async (
+    call: ServerUnaryCall<UpdateSubmissionInput, SubmissionList>,
+    callback: sendUnaryData<SubmissionList>
   ): Promise<void> => { };
 
   delete: handleUnaryCall<LookupCriteria, SubmissionList> = async (

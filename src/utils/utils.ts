@@ -21,22 +21,22 @@ function isUuid(id: string) {
 }
 
 async function getPhaseName(challengeUuid: string, submissionPhaseId: string) {
-  const challenge: Challenge = await challengeDomain.lookup(DomainHelper.getLookupCriteria("id", challengeUuid))
-  const phaseName: Challenge_Phase | undefined = challenge.phases.find(phase => phase.id === submissionPhaseId)
-  return phaseName?.name
+  try {
+    const challenge: Challenge = await challengeDomain.lookup(DomainHelper.getLookupCriteria("id", challengeUuid))
+    const phaseName: Challenge_Phase | undefined = challenge.phases.find(phase => phase.id === submissionPhaseId)
+    return phaseName?.name
+  } catch (e) {
+    return undefined
+  }
 }
 
 async function getChallengePhaseId(phaseName: string) {
-  console.log("************ Legacy Submission Phase Name [2]************", phaseName)
   try {
-
     const challengePhases: PhaseTypeList = await legacyChallengePhaseDomain.getPhaseTypes({})
-    console.log("************ Legacy Submission Phase Name challengePhases ************", challengePhases)
     const phase = challengePhases.items.find(phase => phase.name === phaseName)
-    console.log("************ Legacy Submission Phase Name phases ************", phase)
     return phase?.phaseTypeId
   } catch (e) {
-    console.log("************ Legacy Submission Phase Name Error ************", e)
+    return undefined
   }
 }
 
