@@ -1,7 +1,10 @@
 import { Value } from './../dal/models/nosql/parti_ql';
 import CoreOperations from '../common/CoreOperations';
 import { SubmissionSchema } from '../schema/Submission';
-import { CreateSubmissionInput, Submission, SubmissionList, UpdateSubmissionInput_UpdateInput } from '../models/domain-layer/submission/submission';
+import {
+  CreateSubmissionInput, Submission, SubmissionList,
+  UpdateSubmissionInput_UpdateInput
+} from '../models/domain-layer/submission/submission';
 import IdGenerator from '../helpers/IdGenerator';
 import { LookupCriteria, Operator, ScanCriteria } from '../models/common/common';
 import { isUuid, getPhaseName, getChallengePhaseId } from '../utils/utils';
@@ -33,6 +36,7 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
     //Create submission
 
     const now = new Date().getTime();
+    const id = IdGenerator.generateUUID();
     const tracingInfo = {
       createdBy: "tcwebservice", // TODO: extract from JWT
       updatedBy: "tcwebservice", // TODO: extract from JWT
@@ -58,24 +62,33 @@ class SubmissionDomain extends CoreOperations<Submission, CreateSubmissionInput>
     const legacySubmissionResult: CreateResult = await legacySubmissionDomain.create(legacySubmissionInput)
     // End Legacy
     // Get information for legacy submission
+    if (legacySubmissionResult.kind?.$case === "stringId") {
+      //TODO: submission already exists in legacy we need to update it with upload id
+      //This case should not really happen
 
-
-    const submission: Submission = {
-      id: IdGenerator.generateUUID(),
-      challengeId: input.challengeId,
-      fileType: input.fileType,
-      legacyChallengeId: input.legacyChallengeId,
-      legacySubmissionId: (legacySubmissionResult.kind as any).integerId, //TODO: ask for better type
-      memberId: input.memberId,
-      submissionPhaseId: input.submissionPhaseId,
-      submittedDate: input.submittedDate,
-      type: input.type,
-      url: input.url,
-      ...tracingInfo
+      const results = await this.scan([{
+        key: "id",
+        operator: Operator.OPERATOR_EQUAL,
+        value: id
+      }], undefined)
+      return results.items[0] as Submission
+    } else {
+      const submission: Submission = {
+        id,
+        challengeId: input.challengeId,
+        fileType: input.fileType,
+        legacyChallengeId: input.legacyChallengeId,
+        legacySubmissionId: (legacySubmissionResult.kind as any).integerId, //TODO: ask for better type
+        memberId: input.memberId,
+        submissionPhaseId: input.submissionPhaseId,
+        submittedDate: input.submittedDate,
+        type: input.type,
+        url: input.url,
+        ...tracingInfo
+      }
+      const result = await super.create(submission);
+      return result;
     }
-    const result = await super.create(submission);
-    console.log("************ Submission Result ************", result)
-    return result;
 
   }
 

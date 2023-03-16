@@ -2,10 +2,6 @@ import assert from "assert";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-export const REGISTRATION_PHASE_ID = <string>process.env.REGISTRATION_PHASE_ID;
-export const SUBMISSION_PHASE_ID = <string>process.env.SUBMISSION_PHASE_ID;
-export const CHECKPOINT_SUBMISSION_PHASE_ID = <string>process.env.CHECKPOINT_SUBMISSION_PHASE_ID;
-
 
 /**  Auth0 information */
 export const AUTH0_URL = <string>process.env.AUTH0_URL;
@@ -27,9 +23,6 @@ export const GRPC_ACL_SERVER_HOST = <string>process.env.GRPC_ACL_SERVER_HOST;
 export const GRPC_ACL_SERVER_PORT = <string>process.env.GRPC_ACL_SERVER_PORT;
 export const ENV = process.env.ENV || "local";
 
-assert(REGISTRATION_PHASE_ID, "REGISTRATION_PHASE_ID is not defined");
-assert(SUBMISSION_PHASE_ID, "SUBMISSION_PHASE_ID is not defined");
-assert(CHECKPOINT_SUBMISSION_PHASE_ID, "CHECKPOINT_SUBMISSION_PHASE_ID is not defined");
 assert(AUTH0_URL, "AUTH0_URL is not defined");
 assert(AUTH0_AUDIENCE, "AUTH0_AUDIENCE is not defined");
 assert(TOKEN_CACHE_TIME, "TOKEN_CACHE_TIME is not defined");
