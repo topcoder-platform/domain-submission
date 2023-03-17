@@ -49,7 +49,7 @@ export interface UpdateReviewInput_UpdateInput {
 }
 
 export interface ReviewList {
-  id: string[];
+  items: Review[];
 }
 
 function createBaseReview(): Review {
@@ -561,13 +561,13 @@ export const UpdateReviewInput_UpdateInput = {
 };
 
 function createBaseReviewList(): ReviewList {
-  return { id: [] };
+  return { items: [] };
 }
 
 export const ReviewList = {
   encode(message: ReviewList, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    for (const v of message.id) {
-      writer.uint32(10).string(v!);
+    for (const v of message.items) {
+      Review.encode(v!, writer.uint32(10).fork()).ldelim();
     }
     return writer;
   },
@@ -580,7 +580,7 @@ export const ReviewList = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.id.push(reader.string());
+          message.items.push(Review.decode(reader, reader.uint32()));
           break;
         default:
           reader.skipType(tag & 7);
@@ -591,15 +591,15 @@ export const ReviewList = {
   },
 
   fromJSON(object: any): ReviewList {
-    return { id: Array.isArray(object?.id) ? object.id.map((e: any) => String(e)) : [] };
+    return { items: Array.isArray(object?.items) ? object.items.map((e: any) => Review.fromJSON(e)) : [] };
   },
 
   toJSON(message: ReviewList): unknown {
     const obj: any = {};
-    if (message.id) {
-      obj.id = message.id.map((e) => e);
+    if (message.items) {
+      obj.items = message.items.map((e) => e ? Review.toJSON(e) : undefined);
     } else {
-      obj.id = [];
+      obj.items = [];
     }
     return obj;
   },
@@ -610,7 +610,7 @@ export const ReviewList = {
 
   fromPartial<I extends Exact<DeepPartial<ReviewList>, I>>(object: I): ReviewList {
     const message = createBaseReviewList();
-    message.id = object.id?.map((e) => e) || [];
+    message.items = object.items?.map((e) => Review.fromPartial(e)) || [];
     return message;
   },
 };

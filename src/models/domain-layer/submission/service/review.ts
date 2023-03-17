@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { handleUnaryCall, UntypedServiceImplementation } from "@grpc/grpc-js";
-import { CreateResult, LookupCriteria, ScanRequest, ScanResult, UpdateResult } from "../../../common/common";
+import { LookupCriteria, ScanRequest, ScanResult } from "../../../common/common";
 import { CreateReviewInput, Review, ReviewList, UpdateReviewInput } from "../review";
 
 export type ReviewService = typeof ReviewService;
@@ -29,8 +29,8 @@ export const ReviewService = {
     responseStream: false,
     requestSerialize: (value: CreateReviewInput) => Buffer.from(CreateReviewInput.encode(value).finish()),
     requestDeserialize: (value: Buffer) => CreateReviewInput.decode(value),
-    responseSerialize: (value: CreateResult) => Buffer.from(CreateResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => CreateResult.decode(value),
+    responseSerialize: (value: Review) => Buffer.from(Review.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => Review.decode(value),
   },
   update: {
     path: "/topcoder.domain.service.review.Review/Update",
@@ -38,8 +38,8 @@ export const ReviewService = {
     responseStream: false,
     requestSerialize: (value: UpdateReviewInput) => Buffer.from(UpdateReviewInput.encode(value).finish()),
     requestDeserialize: (value: Buffer) => UpdateReviewInput.decode(value),
-    responseSerialize: (value: UpdateResult) => Buffer.from(UpdateResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => UpdateResult.decode(value),
+    responseSerialize: (value: ReviewList) => Buffer.from(ReviewList.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => ReviewList.decode(value),
   },
   delete: {
     path: "/topcoder.domain.service.review.Review/Delete",
@@ -55,7 +55,7 @@ export const ReviewService = {
 export interface ReviewServer extends UntypedServiceImplementation {
   scan: handleUnaryCall<ScanRequest, ScanResult>;
   lookup: handleUnaryCall<LookupCriteria, Review>;
-  create: handleUnaryCall<CreateReviewInput, CreateResult>;
-  update: handleUnaryCall<UpdateReviewInput, UpdateResult>;
+  create: handleUnaryCall<CreateReviewInput, Review>;
+  update: handleUnaryCall<UpdateReviewInput, ReviewList>;
   delete: handleUnaryCall<LookupCriteria, ReviewList>;
 }

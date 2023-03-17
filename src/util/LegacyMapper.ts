@@ -3,7 +3,7 @@ import { SubmissionStatus, SubmissionTypes, UploadStatus } from "../common/Const
 class LegacyMapper {
   public createLegacySubmissionCreateInput = (submissionId:number, uploadId:number, submissionType: string) => {
     return {
-     submissionId,
+      submissionId,
       uploadId,
       submissionStatusId: SubmissionStatus.Active,
       submissionTypeId: SubmissionTypes[submissionType].id,
